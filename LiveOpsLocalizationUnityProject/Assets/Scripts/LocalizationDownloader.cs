@@ -17,6 +17,8 @@ public class LocalizationDownloader : MonoBehaviour
 
     public static string RawLocalization => _rawLocalizationCsv;
 
+    public static bool IsLoading = true;
+
 
     void OnEnable()
     {
@@ -29,14 +31,22 @@ public class LocalizationDownloader : MonoBehaviour
         using (UnityWebRequest client = UnityWebRequest.Get(CSV_URL))
         {
             UnityWebRequestAsyncOperation result = client.SendWebRequest();
-            
-            _loadingAnimator.SetBool(Loading, true);
+
+            SetLoad(true);
             
             yield return new WaitUntil(() => result.isDone);
-            
-            _loadingAnimator.SetBool(Loading, false);
+
+            SetLoad(false);
             
             _rawLocalizationCsv = result.webRequest.downloadHandler.text;
         }
+        
+        LocalizationController.Instance.Initialize();
+    }
+
+    private void SetLoad(bool isLoading)
+    {
+        _loadingAnimator.SetBool(Loading, isLoading);
+        IsLoading = isLoading;
     }
 }
